@@ -1,0 +1,14 @@
+$headerColor: #8ce47b;
+
+.container {
+    width: 600px;
+    height: 500px;
+    background: url('../../images/2.jpg') no-repeat;
+    background-size: 100% 100%;
+}
+
+.header {
+    color: $headerColor;
+    background: url('../../images/pickup.png') no-repeat;
+    background-position: center;
+}
