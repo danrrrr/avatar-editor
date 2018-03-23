@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack --progress --hot"
+    "build": "webpack --progress --hot",
+    "lint": "eslint --fix src"
   },
   "devDependencies": {
     "autoprefixer": "^8.1.0",
