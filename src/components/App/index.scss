@@ -1,14 +1,15 @@
-$headerColor: #8ce47b;
-
-.container {
-    width: 600px;
-    height: 500px;
-    background: url('../../images/2.jpg') no-repeat;
-    background-size: 100% 100%;
+.upload-btn {
+    margin: 12px;
 }
 
-.header {
-    color: $headerColor;
-    background: url('../../images/pickup.png') no-repeat;
-    background-position: center;
+.input-file {
+    cursor: pointer;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    opacity: 0;
+    z-index: 999;
 }

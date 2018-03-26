@@ -6,8 +6,6 @@ const OpenBrowserPlugin = require('open-browser-webpack-plugin'); // 启动后�
 module.exports = {
   entry: [
     'react-hot-loader/patch',
-    'webpack-dev-server/client?http://localhost:5000',
-    'webpack/hot/only-dev-server',
     './src/index.js'
   ],
   output: {
