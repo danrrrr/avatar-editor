@@ -16,27 +16,28 @@ class Preview extends React.Component {
     console.log('this is preview');
     // eslint-disable-next-line react/no-find-dom-node
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d');
-    const { image } = this.props;
-    this.loadImage(image); // 加载图片
+    if (this.props.image) {
+      this.loadImage(this.props.image); // 加载图片
+    }
     this.draw(context);
+    this.drawImage(context, this.state.image);
   }
   loadImage(image) {
     // eslint-disable-next-line
     if (image instanceof File) {
-      console.log('file', image);
       loadImageFile(image).then(this.handleImage);
     } else if (typeof image === 'string') {
-      console.log('url', image);
       loadImageUrl(image, this.props.crossOrigin).then(this.handleImage);
     }
   }
   handleImage(image) {
     // const imageState = this.getInitialSize(image.width, image.height);
-    const imageState = {width: 200, height: 200};
+    const imageState = { width: 200, height: 200 };
     imageState.resource = image;
     imageState.x = 0.5;
     imageState.y = 0.5;
-    this.setState({ drag: false, image: imageState });
+    this.setState({ drag: false, image: imageState }, this.props.onImageReady);
+    this.props.onLoadSuccess(imageState);
   }
   draw(context) {
     context.save();
@@ -46,10 +47,20 @@ class Preview extends React.Component {
 
     context.restore();
   }
+  drawImage(context, image) {
+    console.log('this is drawImage');
+    if (image.resource) {
+      context.save();
+      context.drawImage(image.resource, 0, 0, 200, 200);
+      context.restore();
+    } else {
+      console.error('cant find image.resource');
+    }
+  }
   render() {
     return (
       <canvas ref={(canvas) => { this.canvas = canvas }}
-        style={{display: 'block'}}></canvas>
+        style={{ display: 'block' }}></canvas>
     );
   }
 }
@@ -57,6 +68,13 @@ class Preview extends React.Component {
 Preview.propTypes = {
   image: PropTypes.object,
   crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
+  onLoadFailure: PropTypes.func,
+  onLoadSuccess: PropTypes.func,
+  onImageReady: PropTypes.func,
+  onImageChange: PropTypes.func,
+  onMouseUp: PropTypes.func,
+  onMouseMove: PropTypes.func,
+  onPositionChange: PropTypes.func,
 };
 
 export default Preview;
