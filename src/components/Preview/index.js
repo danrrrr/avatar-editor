@@ -8,7 +8,7 @@ class Preview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      image: '1.jpg'
     };
   }
 
@@ -20,7 +20,26 @@ class Preview extends React.Component {
       this.loadImage(this.props.image); // 加载图片
     }
     this.draw(context);
+  }
+  componentWillReceiveProps(newProps) {
+    if (newProps.image) {
+      this.loadImage(newProps.image);
+    } else if (!newProps.image) {
+      this.clearImage();
+    }
+  }
+  componentDidUpdate() {
+    // eslint-disable-next-line react/no-find-dom-node
+    const canvas = ReactDOM.findDOMNode(this.canvas);
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, 200, 200);
+    this.draw(context);
     this.drawImage(context, this.state.image);
+  }
+  clearImage() {
+    const canvas = this.canvas;
+    const context = canvas.getContext('2d');
+    context.clearRect(0, 0, canvas.width, canvas.height);
   }
   loadImage(image) {
     // eslint-disable-next-line
@@ -49,7 +68,7 @@ class Preview extends React.Component {
   }
   drawImage(context, image) {
     console.log('this is drawImage');
-    if (image.resource) {
+    if (image && image.resource) {
       context.save();
       context.drawImage(image.resource, 0, 0, 200, 200);
       context.restore();
