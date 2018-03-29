@@ -5,7 +5,7 @@ module.exports = {
         'react'
     ],
     parserOptions: {
-        "ecmaVersion": 7, // 支持ES7
+        "ecmaVersion": 6, // 支持ES6
         "sourceType": "module",
         "ecmaFeatures": {
             "jsx": true

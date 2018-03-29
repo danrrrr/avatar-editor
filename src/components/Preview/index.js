@@ -8,12 +8,12 @@ class Preview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      image: '1.jpg'
+      image: './1.jpg'
     };
+    this.handleImage = this.handleImage.bind(this);
   }
 
   componentDidMount() {
-    console.log('this is preview');
     // eslint-disable-next-line react/no-find-dom-node
     const context = ReactDOM.findDOMNode(this.canvas).getContext('2d');
     if (this.props.image) {
@@ -34,7 +34,7 @@ class Preview extends React.Component {
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, 200, 200);
     this.draw(context);
-    this.drawImage(context, this.state.image);
+    // this.paintImage(context, this.state.image);
   }
   clearImage() {
     const canvas = this.canvas;
@@ -66,11 +66,11 @@ class Preview extends React.Component {
 
     context.restore();
   }
-  drawImage(context, image) {
-    console.log('this is drawImage');
-    if (image && image.resource) {
+  paintImage(context, image) {
+    console.log('this is paintImage');
+    if (image) {
       context.save();
-      context.drawImage(image.resource, 0, 0, 200, 200);
+      context.drawImage(image, 0, 0, 200, 200);
       context.restore();
     } else {
       console.error('cant find image.resource');
