@@ -9,7 +9,7 @@ function isDataURL(str) {
 
 export default function loadImageURL(imageURL, crossOrigin) {
   return new Promise((resolve, reject) => {
-    const image = new Image(200, 200);
+    const image = new Image();
     image.onload = () => resolve(image);
     image.onerror = reject;
     if (isDataURL(imageURL) === false && crossOrigin) {

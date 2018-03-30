@@ -7,6 +7,9 @@ import loadImageUrl from '../../utils/loadImgUrl';
 class Preview extends React.Component {
   constructor(props) {
     super(props);
+    this.state = {
+
+    };
     this.handleImage = this.handleImage.bind(this);
   }
 
@@ -29,7 +32,7 @@ class Preview extends React.Component {
     // eslint-disable-next-line react/no-find-dom-node
     const canvas = ReactDOM.findDOMNode(this.canvas);
     const context = canvas.getContext('2d');
-    context.clearRect(0, 0, 200, 200);
+    context.clearRect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
     this.draw(context);
     this.paintImage(context, this.state.image);
   }
@@ -48,26 +51,60 @@ class Preview extends React.Component {
   }
   handleImage(image) {
     // const imageState = this.getInitialSize(image.width, image.height);
-    const imageState = { width: 200, height: 200 };
+    const { width, height } = this.getImageSize(image);
+    const { axisX, axisY } = this.getInitPostion(image);
+    const imageState = { width: width, height: height };
     imageState.resource = image;
-    imageState.x = 0.5;
-    imageState.y = 0.5;
-    this.setState({ drag: false, image: imageState }, this.props.onImageReady);
-    this.props.onLoadSuccess(imageState);
+    imageState.x = axisX;
+    imageState.y = axisY;
+    this.setState({ drag: false, image: imageState });
+  }
+
+  getWHRatio(w, h) {
+    return w / h;
+  }
+
+  // 图片长边与canvas的宽度一致，另一边按比例缩放
+  getImageSize(image) {
+    const imageWHRatio = this.getWHRatio(image.width, image.height);
+    let width = 0;
+    let height = 0;
+    if (imageWHRatio > 1) {
+      width = this.props.canvasWidth;
+      height = this.props.canvasWidth / image.width * image.height;
+    } else {
+      height = this.props.canvasHeight;
+      width = this.props.canvasHeight / image.height * image.width;
+    }
+
+    return { width, height };
+  }
+  // 图片位置居中, width>height上下留白 width<height 左右留白
+  getInitPostion(image) {
+    const imageWHRatio = this.getWHRatio(image.width, image.height);
+    const { width, height } = this.getImageSize(image);
+    let axisX, axisY;
+    if (imageWHRatio > 1) {
+      axisX = 0;
+      axisY = (this.props.canvasHeight - height) / 2;
+    } else {
+      axisX = (this.props.canvasWidth - width) / 2;
+      axisY = 0;
+    }
+    return { axisX, axisY };
   }
   draw(context) {
     context.save();
     context.beginPath();
-    context.rect(0, 0, 200, 200);
+    context.rect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
     context.fill('evenodd');
 
     context.restore();
   }
   paintImage(context, image) {
-    console.log('this is paintImage');
     if (image && image.resource) {
       context.save();
-      context.drawImage(image.resource, 0, 0, 200, 200);
+      context.drawImage(image.resource, image.x, image.y, this.state.image.width, this.state.image.height);
       context.restore();
     } else {
       console.error('cant find image.resource');
@@ -76,6 +113,7 @@ class Preview extends React.Component {
   render() {
     return (
       <canvas ref={(canvas) => { this.canvas = canvas }}
+        width={this.props.canvasWidth} height={this.props.canvasHeight}
         style={{ display: 'block' }}></canvas>
     );
   }
@@ -83,11 +121,9 @@ class Preview extends React.Component {
 
 Preview.propTypes = {
   image: PropTypes.object,
+  canvasWidth: PropTypes.number,
+  canvasHeight: PropTypes.number,
   crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
-  onLoadFailure: PropTypes.func,
-  onLoadSuccess: PropTypes.func,
-  onImageReady: PropTypes.func,
-  onImageChange: PropTypes.func,
   onMouseUp: PropTypes.func,
   onMouseMove: PropTypes.func,
   onPositionChange: PropTypes.func,

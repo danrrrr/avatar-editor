@@ -9,7 +9,9 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      image: defaultImg
+      image: defaultImg,
+      canvasWidth: 400,
+      canvasHeight: 400
     };
     this.handleNewImage = this.handleNewImage.bind(this);
   }
@@ -17,21 +19,12 @@ class App extends React.Component {
     this.setState({
       image: e.target.files[0]
     });
-    console.log(this.state.image);
-  }
-  logCallback(e) {
-    // eslint-disable-next-line
-    console.log('callback', e)
   }
   render() {
     return (
       <MuiThemeProvider>
         <div className="container">
-          <Preview image={this.state.image}
-            onLoadFailure={this.logCallback.bind(this, 'onLoadFailed')}
-            onLoadSuccess={this.logCallback.bind(this, 'onLoadSuccess')}
-            onImageReady={this.logCallback.bind(this, 'onImageReady')}
-            onImageLoad={this.logCallback.bind(this, 'onImageLoad')}/>
+          <Preview image={this.state.image} canvasWidth={this.state.canvasWidth} canvasHeight={this.state.canvasHeight}/>
           <RaiseButton className="upload-btn" primary={true} label="choose an image">
             <input className="input-file" type="file" onChange={this.handleNewImage}></input>
           </RaiseButton>
