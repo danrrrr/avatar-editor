@@ -10,17 +10,11 @@ function isDataURL(str) {
 export default function loadImageURL(imageURL, crossOrigin) {
   return new Promise((resolve, reject) => {
     const image = new Image(200, 200);
-    // image.onload = () => resolve(image);
-    image.onload = () => {
-      console.log('image is onloaded');
-    };
-    // image.onerror = reject;
-    image.onerror = () => {
-      console.log('onload error');
-    };
+    image.onload = () => resolve(image);
+    image.onerror = reject;
     if (isDataURL(imageURL) === false && crossOrigin) {
       image.crossOrigin = crossOrigin;
     }
-    image.src = imageURL; // 图片的输出路径不对，加载失败
+    image.src = imageURL;
   });
 }

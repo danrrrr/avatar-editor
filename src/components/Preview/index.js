@@ -7,9 +7,6 @@ import loadImageUrl from '../../utils/loadImgUrl';
 class Preview extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      image: './1.jpg'
-    };
     this.handleImage = this.handleImage.bind(this);
   }
 
@@ -34,7 +31,7 @@ class Preview extends React.Component {
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, 200, 200);
     this.draw(context);
-    // this.paintImage(context, this.state.image);
+    this.paintImage(context, this.state.image);
   }
   clearImage() {
     const canvas = this.canvas;
@@ -68,9 +65,9 @@ class Preview extends React.Component {
   }
   paintImage(context, image) {
     console.log('this is paintImage');
-    if (image) {
+    if (image && image.resource) {
       context.save();
-      context.drawImage(image, 0, 0, 200, 200);
+      context.drawImage(image.resource, 0, 0, 200, 200);
       context.restore();
     } else {
       console.error('cant find image.resource');

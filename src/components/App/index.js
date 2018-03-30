@@ -2,13 +2,14 @@ import React from 'react';
 import RaiseButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Preview from '../Preview';
+import defaultImg from './1.jpg';
 
 import './index.scss';
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      image: '1.jpg'
+      image: defaultImg
     };
     this.handleNewImage = this.handleNewImage.bind(this);
   }
