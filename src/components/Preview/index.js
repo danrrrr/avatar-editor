@@ -8,7 +8,12 @@ class Preview extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-
+      cropAreaWidth: 200,
+      cropAreaHeight: 200,
+      image: {
+        x: 0.5,
+        y: 0.5
+      }
     };
     this.handleImage = this.handleImage.bind(this);
   }
@@ -50,7 +55,6 @@ class Preview extends React.Component {
     }
   }
   handleImage(image) {
-    // const imageState = this.getInitialSize(image.width, image.height);
     const { width, height } = this.getImageSize(image);
     const { axisX, axisY } = this.getInitPostion(image);
     const imageState = { width: width, height: height };
@@ -97,6 +101,8 @@ class Preview extends React.Component {
     e.preventDefault();
     this.setState({
       drag: true,
+      mx: null,
+      my: null,
       startX: e.clientX,
       startY: e.clientY,
       startOriginX: this.state.image.x,
@@ -105,20 +111,43 @@ class Preview extends React.Component {
   }
   handleMouseUp(e) {
     if (this.state.drag) {
-      this.setState({drag: false});
+      this.setState({ drag: false });
     }
   }
   handleMouseMove(e) {
     if (!this.state.drag) {
       return;
     }
-
+    // 计算拖动后的位置
     const positionX = e.clientX - (this.state.startX - this.state.startOriginX);
     const positionY = e.clientY - (this.state.startY - this.state.startOriginY);
-    const position = {x: positionX, y: positionY};
+    const position = { x: this.state.startOriginX < 0 ? positionX : 0, y: this.state.startOriginY < 0 ? positionY : 0 };
+    console.log('originX: ', this.state.startOriginX, position, this.state.image.width);
     this.setState({
       image: {...this.state.image, ...position}
     });
+  }
+  getCropArea() {
+    // const position = this.props.position || {
+    //   x: this.state.image.x,
+    //   y: this.state.image.y
+    // };
+
+    // const width = 1 / this.props.scaleValue;
+  }
+  getImage() {
+    const image = this.state.image;
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    canvas.width = this.state.cropAreaWidth;
+    canvas.height = this.state.cropAreaHeight;
+    const sx = 100 / 400 * this.state.image.resource.width;
+    const sy = 100 / 400 * this.state.image.resource.height;
+    const sw = 200 / 400 * this.state.image.resource.width;
+    const sh = 200 / 400 * this.state.image.resource.height;
+    context.drawImage(image.resource, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+
+    return canvas;
   }
   draw(context) {
     context.save();
@@ -137,15 +166,29 @@ class Preview extends React.Component {
       console.error('cant find image.resource');
     }
   }
+  //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
   render() {
+    const cropAreaAttr = {
+      style: {
+        width: this.state.cropAreaWidth + 'px',
+        height: this.state.cropAreaHeight + 'px',
+        border: '2px dashed #fff',
+        position: 'absolute',
+        left: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
+        top: (this.props.canvasHeight - this.state.cropAreaHeight) / 2,
+      }
+    };
     return (
-      <canvas ref={(canvas) => { this.canvas = canvas }}
-        width={this.props.canvasWidth} height={this.props.canvasHeight}
-        style={{ display: 'block' }}
-        onMouseDown={(event) => this.handleMouseDown(event)}
-        onMouseUp={(event) => this.handleMouseUp(event)}
-        onMouseMove={(event) => this.handleMouseMove(event)}
-      ></canvas>
+      <div style={{ position: 'relative' }}>
+        <canvas ref={(canvas) => { this.canvas = canvas }}
+          width={this.props.canvasWidth} height={this.props.canvasHeight}
+          style={{ display: 'block' }}
+          onMouseDown={(event) => this.handleMouseDown(event)}
+          onMouseUp={(event) => this.handleMouseUp(event)}
+          onMouseMove={(event) => this.handleMouseMove(event)}
+        ></canvas>
+        <div className="cropArea" {...cropAreaAttr}></div>
+      </div>
     );
   }
 }
