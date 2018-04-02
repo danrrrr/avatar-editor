@@ -70,11 +70,11 @@ class Preview extends React.Component {
     let width = 0;
     let height = 0;
     if (imageWHRatio > 1) {
-      width = this.props.canvasWidth;
-      height = this.props.canvasWidth / image.width * image.height;
+      width = this.props.canvasWidth * this.props.scaleValue;
+      height = (this.props.canvasWidth / image.width * image.height) * this.props.scaleValue;
     } else {
-      height = this.props.canvasHeight;
-      width = this.props.canvasHeight / image.height * image.width;
+      height = this.props.canvasHeight * this.props.scaleValue;
+      width = (this.props.canvasHeight / image.height * image.width) * this.props.scaleValue;
     }
 
     return { width, height };
@@ -85,11 +85,11 @@ class Preview extends React.Component {
     const { width, height } = this.getImageSize(image);
     let axisX, axisY;
     if (imageWHRatio > 1) {
-      axisX = 0;
+      axisX = (this.props.canvasWidth - width) / 2;
       axisY = (this.props.canvasHeight - height) / 2;
     } else {
       axisX = (this.props.canvasWidth - width) / 2;
-      axisY = 0;
+      axisY = (this.props.canvasHeight - height) / 2;
     }
     return { axisX, axisY };
   }
@@ -121,6 +121,7 @@ class Preview extends React.Component {
 
 Preview.propTypes = {
   image: PropTypes.object,
+  scaleValue: PropTypes.number,
   canvasWidth: PropTypes.number,
   canvasHeight: PropTypes.number,
   crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
