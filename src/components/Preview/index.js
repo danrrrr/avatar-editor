@@ -93,6 +93,33 @@ class Preview extends React.Component {
     }
     return { axisX, axisY };
   }
+  handleMouseDown(e) {
+    e.preventDefault();
+    this.setState({
+      drag: true,
+      startX: e.clientX,
+      startY: e.clientY,
+      startOriginX: this.state.image.x,
+      startOriginY: this.state.image.y
+    });
+  }
+  handleMouseUp(e) {
+    if (this.state.drag) {
+      this.setState({drag: false});
+    }
+  }
+  handleMouseMove(e) {
+    if (!this.state.drag) {
+      return;
+    }
+
+    const positionX = e.clientX - (this.state.startX - this.state.startOriginX);
+    const positionY = e.clientY - (this.state.startY - this.state.startOriginY);
+    const position = {x: positionX, y: positionY};
+    this.setState({
+      image: {...this.state.image, ...position}
+    });
+  }
   draw(context) {
     context.save();
     context.beginPath();
@@ -114,7 +141,11 @@ class Preview extends React.Component {
     return (
       <canvas ref={(canvas) => { this.canvas = canvas }}
         width={this.props.canvasWidth} height={this.props.canvasHeight}
-        style={{ display: 'block' }}></canvas>
+        style={{ display: 'block' }}
+        onMouseDown={(event) => this.handleMouseDown(event)}
+        onMouseUp={(event) => this.handleMouseUp(event)}
+        onMouseMove={(event) => this.handleMouseMove(event)}
+      ></canvas>
     );
   }
 }
