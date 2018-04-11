@@ -40,7 +40,8 @@ module.exports = {
         options: {
           presets: ['env', 'react'],
           plugins: ['react-hot-loader/babel']
-        }
+        },
+        exclude: /node_modules/
       },
       {
         test: /\.js$/,
@@ -80,7 +81,7 @@ module.exports = {
             limit: 10000, // 1w字节以下的图片会自动转成base64
           }
         }]
-      }
+      },
     ]
   }
 };

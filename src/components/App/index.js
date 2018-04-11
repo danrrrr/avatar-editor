@@ -28,12 +28,14 @@ class App extends React.Component {
   }
   handleCropImage() {
     // 获取裁剪框的位置，大小，通过drawImage绘制图片
-    const image = this.editor.getImage().toDataURL();
-    this.setState({
-      preview: {
-        img: image
-      }
-    });
+    // const image = this.editor.getImage().toDataURL();
+    // this.setState({
+    //   preview: {
+    //     img: image
+    //   }
+    // });
+    // this.editor.getTemplateData();
+    this.editor.putImageDataToPreview();
   }
   render() {
     return (
