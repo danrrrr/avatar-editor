@@ -5,6 +5,7 @@ import loadImageFile from '../../utils/loadImgFile';
 import loadImageUrl from '../../utils/loadImgUrl';
 
 const INIT_SIZE = 200;
+const BORDER_WIDTH = 2;
 class Preview extends React.Component {
   constructor(props) {
     super(props);
@@ -20,6 +21,8 @@ class Preview extends React.Component {
       scaleValue: 1,
       cropResWidth: INIT_SIZE,
       cropResHeight: INIT_SIZE,
+      templateX: 0,
+      templateY: 0,
     };
     this.handleImage = this.handleImage.bind(this);
   }
@@ -119,14 +122,17 @@ class Preview extends React.Component {
   }
   handleMouseDown(e) {
     e.preventDefault();
+    // eslint-disable-next-line react/no-find-dom-node
+    const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
+
     this.setState({
       drag: true,
       mx: null,
       my: null,
-      startX: e.clientX,
+      startX: e.clientX, // 鼠标相对于浏览器视口的坐标
       startY: e.clientY,
-      startOriginX: this.state.image.x,
-      startOriginY: this.state.image.y
+      startLeft: obj.left,
+      startTop: obj.top,
     });
   }
   handleMouseUp(e) {
@@ -138,14 +144,13 @@ class Preview extends React.Component {
     if (!this.state.drag) {
       return;
     }
-    // 计算拖动后的位置
-    const positionX = e.clientX - (this.state.startX - this.state.startOriginX);
-    const positionY = e.clientY - (this.state.startY - this.state.startOriginY);
-    const position = { x: positionX, y: positionY };
-    // const position = { x: this.state.startOriginX < 0 ? positionX : 0, y: this.state.startOriginY < 0 ? positionY : 0 };
-    // console.log('originX: ', this.state.startOriginX, position, this.state.image.width);
+
+    // 计算裁剪框拖动后的位置
+    const positionX = e.clientX - this.state.startX + this.state.startLeft;
+    const positionY = e.clientY - this.state.startY + this.state.startTop;
     this.setState({
-      image: { ...this.state.image, ...position }
+      templateX: positionX,
+      templateY: positionY
     });
   }
   // handleMouseWheel(e) {
@@ -196,9 +201,8 @@ class Preview extends React.Component {
       // 获取元素的位置及size信息，位置是相对于视口的距离
       // eslint-disable-next-line react/no-find-dom-node
       const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
-      console.log(obj);
 
-      const imageData = context.getImageData(obj.left - 1, obj.top - 1, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+      const imageData = context.getImageData(obj.left, obj.top, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
       if (!this.state.targetImageData || (imageData && imageData.toString() !== this.state.targetImageData.toString())) {
         this.setState({ targetImageData: imageData }); // 这里setstate会出发componentDidUpdate
       }
@@ -251,42 +255,24 @@ class Preview extends React.Component {
 
   //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
   render() {
-    const cropAreaAttr = {
-      width: this.state.cropAreaWidth,
-      height: this.state.cropAreaHeight,
-      style: {
-        width: this.state.cropAreaWidth + 'px',
-        height: this.state.cropAreaHeight + 'px',
-        border: '2px dashed #fff',
-        position: 'absolute',
-        left: '50px',
-        top: '80px',
-        // left: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
-        // top: (this.props.canvasHeight - this.state.cropAreaHeight) / 2,
-      }
-    };
     return (
       <div style={{ position: 'relative' }}>
         <canvas ref={(canvas) => { this.canvas = canvas }}
           width={this.props.canvasWidth} height={this.props.canvasHeight}
           style={{ display: 'block' }}
+          onWheel={(event) => this.handleMouseWheel(event)}
+        ></canvas>
+        <canvas ref={(canvas) => { this.template = canvas }}
+          width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
+          style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}
           onMouseDown={(event) => this.handleMouseDown(event)}
           onMouseUp={(event) => this.handleMouseUp(event)}
           onMouseMove={(event) => this.handleMouseMove(event)}
-          onWheel={(event) => this.handleMouseWheel(event)}
         ></canvas>
-        <div className="cropArea" {...cropAreaAttr}>
-          <canvas ref={(canvas) => { this.template = canvas }}
-            width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
-            style={{ background: '#000', opacity: 0.3 }}
-          ></canvas>
-        </div>
-        <div className="result">
-          <canvas ref={(canvas) => { this.cropRes = canvas }}
-            width={this.state.cropResWidth} height={this.state.cropResHeight}
-            style={{ background: '#ccc' }}
-          ></canvas>
-        </div>
+        <canvas ref={(canvas) => { this.cropRes = canvas }}
+          width={this.state.cropResWidth} height={this.state.cropResHeight}
+          style={{ background: '#ccc' }}
+        ></canvas>
       </div>
     );
   }
