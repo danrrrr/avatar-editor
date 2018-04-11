@@ -141,11 +141,11 @@ class Preview extends React.Component {
     // 计算拖动后的位置
     const positionX = e.clientX - (this.state.startX - this.state.startOriginX);
     const positionY = e.clientY - (this.state.startY - this.state.startOriginY);
-    const position = {x: positionX, y: positionY};
+    const position = { x: positionX, y: positionY };
     // const position = { x: this.state.startOriginX < 0 ? positionX : 0, y: this.state.startOriginY < 0 ? positionY : 0 };
     // console.log('originX: ', this.state.startOriginX, position, this.state.image.width);
     this.setState({
-      image: {...this.state.image, ...position}
+      image: { ...this.state.image, ...position }
     });
   }
   // handleMouseWheel(e) {
@@ -192,9 +192,15 @@ class Preview extends React.Component {
     if (image && image.resource) {
       context.save();
       context.drawImage(image.resource, image.x, image.y, this.state.image.width, this.state.image.height);
-      const imageData = context.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+
+      // 获取元素的位置及size信息，位置是相对于视口的距离
+      // eslint-disable-next-line react/no-find-dom-node
+      const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
+      console.log(obj);
+
+      const imageData = context.getImageData(obj.left - 1, obj.top - 1, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
       if (!this.state.targetImageData || (imageData && imageData.toString() !== this.state.targetImageData.toString())) {
-        this.setState({targetImageData: imageData}); // 这里setstate会出发componentDidUpdate
+        this.setState({ targetImageData: imageData }); // 这里setstate会出发componentDidUpdate
       }
       context.restore();
     } else {
@@ -217,6 +223,7 @@ class Preview extends React.Component {
     const ctx = canvas.getContext('2d');
     // eslint-disable-next-line react/no-find-dom-node
     const resCtx = ReactDOM.findDOMNode(this.cropRes).getContext('2d');
+
     let previewImage = ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
     let previewData = previewImage.data;
     const tempImageData = this.getTemplateData();
@@ -252,8 +259,8 @@ class Preview extends React.Component {
         height: this.state.cropAreaHeight + 'px',
         border: '2px dashed #fff',
         position: 'absolute',
-        left: 0,
-        top: 0,
+        left: '50px',
+        top: '80px',
         // left: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
         // top: (this.props.canvasHeight - this.state.cropAreaHeight) / 2,
       }
