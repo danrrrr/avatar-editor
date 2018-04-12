@@ -46,7 +46,8 @@ module.exports = {
       {
         test: /\.js$/,
         enforce: 'pre', // 加载器执行顺序(pre|post) eslint是检查代码规范应该在编译前执行
-        loader: 'eslint-loader'
+        loader: 'eslint-loader',
+        exclude: /node_modules/
       },
       {
         test: /\.(css|scss)$/,

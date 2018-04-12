@@ -35,6 +35,10 @@ class Preview extends React.Component {
     if (this.props.image) {
       this.loadImage(this.props.image); // 加载图片
     }
+    this.setState({
+      templateX: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
+      templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
+    });
     this.draw(context); // 绘制画布
   }
   componentWillReceiveProps(newProps) {
@@ -49,6 +53,10 @@ class Preview extends React.Component {
         cropAreaHeight: this.state.initCropAreaHeight * newProps.scaleValue
       });
     }
+    this.setState({
+      templateX: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
+      templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
+    });
   }
   componentDidUpdate() {
     // eslint-disable-next-line react/no-find-dom-node
@@ -257,9 +265,8 @@ class Preview extends React.Component {
 
     let previewImage = ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
     let previewData = previewImage.data;
-    // const tempImageData = this.getTemplateData();
     const tempImageData = this.state.templateImgData;
-    if (!tempImageData) { // 这儿返回null了所以程序终止了
+    if (!tempImageData) {
       return;
     }
     const targetImageData = this.state.targetImageData;
