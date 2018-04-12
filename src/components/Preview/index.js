@@ -47,8 +47,8 @@ class Preview extends React.Component {
     if ((newProps.image && newProps.image !== this.props.image) || newProps.canvasWidth !== this.props.canvasWidth || newProps.canvasHeight !== this.props.canvasHeight) {
       this.loadImage(newProps.image);
       this.setState({
-        templateX: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
-        templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
+        templateX: (this.props.canvasWidth - INIT_SIZE) / 2,
+        templateY: (this.props.canvasHeight - INIT_SIZE) / 2
       });
     } else if (!newProps.image) {
       this.clearImage();

@@ -20,7 +20,8 @@ class App extends React.Component {
   }
   handleNewImage(e) {
     this.setState({
-      image: e.target.files[0]
+      image: e.target.files[0],
+      scaleValue: 1
     });
   }
   handleScale(event, value) {
