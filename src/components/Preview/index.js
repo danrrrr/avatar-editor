@@ -43,8 +43,13 @@ class Preview extends React.Component {
     this.draw(context); // 绘制画布
   }
   componentWillReceiveProps(newProps) {
-    if (newProps.image) {
+    // 图片改变（重传或大小改变）重新加载图片
+    if ((newProps.image && newProps.image !== this.props.image) || newProps.canvasWidth !== this.props.canvasWidth || newProps.canvasHeight !== this.props.canvasHeight) {
       this.loadImage(newProps.image);
+      this.setState({
+        templateX: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
+        templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
+      });
     } else if (!newProps.image) {
       this.clearImage();
     }
@@ -126,12 +131,14 @@ class Preview extends React.Component {
     }
     return { axisX, axisY };
   }
+  getElementClient(ele) {
+    // eslint-disable-next-line react/no-find-dom-node
+    return ReactDOM.findDOMNode(ele).getBoundingClientRect();
+  }
   handleMouseDown(e) {
     e.preventDefault();
-    // eslint-disable-next-line react/no-find-dom-node
-    const canvasObj = ReactDOM.findDOMNode(this.canvas).getBoundingClientRect();
-    // eslint-disable-next-line react/no-find-dom-node
-    const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
+    const canvasObj = this.getElementClient(this.canvas);
+    const obj = this.getElementClient(this.template);
     this.setState({
       drag: true,
       mx: null,
@@ -152,10 +159,28 @@ class Preview extends React.Component {
     if (!this.state.drag) {
       return;
     }
+    // const canvasObj = this.getElementClient(this.canvas);
+    // const obj = this.getElementClient(this.template);
     // 计算裁剪框拖动后的位置
     // 裁剪框位置不应该超出图片
-    const positionX = e.clientX - this.state.startX + this.state.startLeft;
-    const positionY = e.clientY - this.state.startY + this.state.startTop;
+    let positionX = e.clientX - this.state.startX + this.state.startLeft;
+    let positionY = e.clientY - this.state.startY + this.state.startTop;
+
+    const minPosX = (this.props.canvasWidth - this.state.image.width) / 2;
+    const minPosY = (this.props.canvasHeight - this.state.image.height) / 2;
+    const maxPosY = this.props.canvasHeight - minPosY - this.state.cropAreaHeight;
+    const maxPosX = this.props.canvasWidth - minPosX - this.state.cropAreaWidth;
+    if (positionX <= minPosX) {
+      positionX = minPosX;
+    } else if (positionX >= maxPosX) {
+      positionX = maxPosX;
+    }
+    if (positionY <= minPosY) {
+      positionY = minPosY;
+    } else if (positionY >= maxPosY) {
+      positionY = maxPosY;
+    }
+
     this.setState({
       templateX: positionX,
       templateY: positionY
@@ -207,11 +232,8 @@ class Preview extends React.Component {
       context.drawImage(image.resource, image.x, image.y, this.state.image.width, this.state.image.height);
 
       // 获取元素的位置及size信息，位置是相对于视口的距离
-      // eslint-disable-next-line react/no-find-dom-node
-      const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
-      // eslint-disable-next-line react/no-find-dom-node
-      const canvasObj = ReactDOM.findDOMNode(this.canvas).getBoundingClientRect();
-
+      const obj = this.getElementClient(this.template);
+      const canvasObj = this.getElementClient(this.canvas);
       const imageData = context.getImageData(obj.left - canvasObj.left, obj.top - canvasObj.top, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
       if (!this.state.targetImageData || (imageData && imageData.toString() !== this.state.targetImageData.toString())) {
         this.setState({ targetImageData: imageData }); // 这里setstate会出发componentDidUpdate
