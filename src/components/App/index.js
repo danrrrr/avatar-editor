@@ -35,7 +35,7 @@ class App extends React.Component {
     //   }
     // });
     // this.editor.getTemplateData();
-    this.editor.putImageDataToPreview();
+    this.editor.getTemplateData();
   }
   render() {
     return (

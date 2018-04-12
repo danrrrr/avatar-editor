@@ -3,9 +3,11 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import loadImageFile from '../../utils/loadImgFile';
 import loadImageUrl from '../../utils/loadImgUrl';
+import tempImg1 from './heart.png';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
+
 class Preview extends React.Component {
   constructor(props) {
     super(props);
@@ -214,7 +216,32 @@ class Preview extends React.Component {
   getTemplateData() {
     // eslint-disable-next-line react/no-find-dom-node
     const ctx = ReactDOM.findDOMNode(this.template).getContext('2d');
-    return ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+    // eslint-disable-next-line
+    const templateImg = new Image();
+    // const canvas = document.createElement('canvas');
+    // const imgCtx = canvas.getContext('2d');
+    templateImg.src = tempImg1;
+    const _this = this;
+    templateImg.onload = function() {
+      // 将模板图片绘制到canvas中，然后获取imgCtx的data数据，更改data数据
+      ctx.drawImage(templateImg, 0, 0, templateImg.width, templateImg.height, 0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight);
+      let templateImgInfo = ctx.getImageData(0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight);
+      let templateImgData = templateImgInfo.data;
+      for (let i = 0; i < templateImgData.length; i = i + 3) {
+        if (templateImgData[i + 3] !== 0) {
+          templateImgData[i + 0] = 255;
+          templateImgData[i + 1] = 255;
+          templateImgData[i + 2] = 255;
+          templateImgData[i + 3] = 100;
+        }
+      }
+      _this.setState({
+        templateImgData: templateImgData
+      });
+      _this.putImageDataToPreview();
+      // ctx.putImageData(templateImgInfo, 0, 0, 0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
+    };
+    // return ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
   }
 
   putImageDataToPreview() {
@@ -230,10 +257,14 @@ class Preview extends React.Component {
 
     let previewImage = ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
     let previewData = previewImage.data;
-    const tempImageData = this.getTemplateData();
+    // const tempImageData = this.getTemplateData();
+    const tempImageData = this.state.templateImgData;
+    if (!tempImageData) { // 这儿返回null了所以程序终止了
+      return;
+    }
     const targetImageData = this.state.targetImageData;
     for (let i = 0; i < tempImageData.length; i = i + 4) {
-      if (tempImageData[i + 3] === 0) {
+      if (tempImageData[i + 3] !== 0) {
         previewData[i] = targetImageData[i];
         previewData[i + 1] = targetImageData[i + 1];
         previewData[i + 2] = targetImageData[i + 2];
@@ -271,7 +302,7 @@ class Preview extends React.Component {
         ></canvas>
         <canvas ref={(canvas) => { this.cropRes = canvas }}
           width={this.state.cropResWidth} height={this.state.cropResHeight}
-          style={{ background: '#ccc' }}
+          style={{ background: '#fff', opacity: 1 }}
         ></canvas>
       </div>
     );
