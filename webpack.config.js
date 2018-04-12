@@ -11,7 +11,6 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'build'), // 打包文件的输出绝对路径
     filename: 'bundle.js', // 打包文件名
-    publicPath: '/'
   },
   plugins: [
     new HtmlWebpackPlugin({
@@ -29,14 +28,13 @@ module.exports = {
   devServer: {
     contentBase: path.resolve(__dirname, 'build'),
     hot: true,
-    publicPath: '/',
     port: 5000
   },
   module: {
     rules: [
       {
         test: /\.js$/,
-        loader: 'babel-loader',
+        loader: 'babel-loader?cacheDirectory',
         options: {
           presets: ['env', 'react'],
           plugins: ['react-hot-loader/babel']
