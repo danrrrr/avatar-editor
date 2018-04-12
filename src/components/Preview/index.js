@@ -35,6 +35,7 @@ class Preview extends React.Component {
     if (this.props.image) {
       this.loadImage(this.props.image); // 加载图片
     }
+    // templateXY是相对于画布的位置
     this.setState({
       templateX: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
       templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
@@ -53,17 +54,12 @@ class Preview extends React.Component {
         cropAreaHeight: this.state.initCropAreaHeight * newProps.scaleValue
       });
     }
-    this.setState({
-      templateX: (this.props.canvasWidth - this.state.cropAreaWidth) / 2,
-      templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
-    });
   }
   componentDidUpdate() {
     // eslint-disable-next-line react/no-find-dom-node
     const canvas = ReactDOM.findDOMNode(this.canvas);
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
-    // this.loadImage(this.props.image); // 这里会不断的加载图片
     this.draw(context);
     this.paintImage(context, this.state.image);
   }
@@ -133,16 +129,18 @@ class Preview extends React.Component {
   handleMouseDown(e) {
     e.preventDefault();
     // eslint-disable-next-line react/no-find-dom-node
+    const canvasObj = ReactDOM.findDOMNode(this.canvas).getBoundingClientRect();
+    // eslint-disable-next-line react/no-find-dom-node
     const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
-
     this.setState({
       drag: true,
       mx: null,
       my: null,
       startX: e.clientX, // 鼠标相对于浏览器视口的坐标
       startY: e.clientY,
-      startLeft: obj.left,
-      startTop: obj.top,
+      // 这里应该是绝对位置而不是相对于视口的位置
+      startLeft: obj.left - canvasObj.left,
+      startTop: obj.top - canvasObj.top,
     });
   }
   handleMouseUp(e) {
@@ -154,8 +152,8 @@ class Preview extends React.Component {
     if (!this.state.drag) {
       return;
     }
-
     // 计算裁剪框拖动后的位置
+    // 裁剪框位置不应该超出图片
     const positionX = e.clientX - this.state.startX + this.state.startLeft;
     const positionY = e.clientY - this.state.startY + this.state.startTop;
     this.setState({
@@ -294,7 +292,7 @@ class Preview extends React.Component {
   //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
   render() {
     return (
-      <div style={{ position: 'relative' }}>
+      <div style={{ position: 'relative', width: this.props.canvasWidth + 'px', margin: '50px auto' }}>
         <canvas ref={(canvas) => { this.canvas = canvas }}
           width={this.props.canvasWidth} height={this.props.canvasHeight}
           style={{ display: 'block' }}

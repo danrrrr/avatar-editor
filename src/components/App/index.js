@@ -42,7 +42,8 @@ class App extends React.Component {
         <div className="container">
           <Preview ref={(editor) => { this.editor = editor }}
             image={this.state.image} canvasWidth={this.state.canvasWidth} canvasHeight={this.state.canvasHeight}
-            scaleValue={this.state.scaleValue}/>
+            scaleValue={this.state.scaleValue}
+          />
           <RaiseButton className="upload-btn" primary={true} label="choose an image">
             <input className="input-file" type="file" onChange={this.handleNewImage}></input>
           </RaiseButton>
