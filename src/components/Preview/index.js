@@ -209,8 +209,10 @@ class Preview extends React.Component {
       // 获取元素的位置及size信息，位置是相对于视口的距离
       // eslint-disable-next-line react/no-find-dom-node
       const obj = ReactDOM.findDOMNode(this.template).getBoundingClientRect();
+      // eslint-disable-next-line react/no-find-dom-node
+      const canvasObj = ReactDOM.findDOMNode(this.canvas).getBoundingClientRect();
 
-      const imageData = context.getImageData(obj.left, obj.top, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+      const imageData = context.getImageData(obj.left - canvasObj.left, obj.top - canvasObj.top, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
       if (!this.state.targetImageData || (imageData && imageData.toString() !== this.state.targetImageData.toString())) {
         this.setState({ targetImageData: imageData }); // 这里setstate会出发componentDidUpdate
       }
