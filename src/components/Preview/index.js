@@ -50,10 +50,11 @@ class Preview extends React.Component {
         templateX: (this.props.canvasWidth - INIT_SIZE) / 2,
         templateY: (this.props.canvasHeight - INIT_SIZE) / 2
       });
+      this.clearImage(this.cropRes);
     } else if (!newProps.image) {
-      this.clearImage();
+      this.clearImage(this.canvas);
     }
-    if (newProps.scaleValue) {
+    if (newProps.scaleValue !== this.props.scaleValue) {
       this.setState({
         cropAreaWidth: this.state.initCropAreaWidth * newProps.scaleValue,
         cropAreaHeight: this.state.initCropAreaHeight * newProps.scaleValue
@@ -68,8 +69,7 @@ class Preview extends React.Component {
     this.draw(context);
     this.paintImage(context, this.state.image);
   }
-  clearImage() {
-    const canvas = this.canvas;
+  clearImage(canvas) {
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
