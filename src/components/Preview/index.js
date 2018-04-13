@@ -41,6 +41,15 @@ class Preview extends React.Component {
       templateY: (this.props.canvasHeight - this.state.cropAreaHeight) / 2
     });
     this.draw(context); // 绘制画布
+    // eslint-disable-next-line react/no-find-dom-node
+    const ctx = ReactDOM.findDOMNode(this.template).getContext('2d');
+    let templateImgData = ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+    for (let i = 0; i < templateImgData.length; i++) {
+      templateImgData[i] = 255;
+    }
+    this.setState({
+      templateImgData: templateImgData
+    });
   }
   componentWillReceiveProps(newProps) {
     // 图片改变（重传或大小改变）重新加载图片
@@ -248,29 +257,38 @@ class Preview extends React.Component {
     const ctx = ReactDOM.findDOMNode(this.template).getContext('2d');
     // eslint-disable-next-line
     const templateImg = new Image();
-    // const canvas = document.createElement('canvas');
-    // const imgCtx = canvas.getContext('2d');
-    templateImg.src = this.state.templateImg;
-    const _this = this;
-    templateImg.onload = function() {
-      // 将模板图片绘制到canvas中，然后获取imgCtx的data数据，更改data数据
-      ctx.drawImage(templateImg, 0, 0, templateImg.width, templateImg.height, 0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight);
-      let templateImgInfo = ctx.getImageData(0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight);
-      let templateImgData = templateImgInfo.data;
-      for (let i = 0; i < templateImgData.length; i = i + 3) {
-        if (templateImgData[i + 3] !== 0) {
-          templateImgData[i + 0] = 255;
-          templateImgData[i + 1] = 255;
-          templateImgData[i + 2] = 255;
-          templateImgData[i + 3] = 100;
-        }
+    let templateImgData;
+    if (!this.state.templateImg) {
+      templateImgData = ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+      for (let i = 0; i < templateImgData.length; i++) {
+        templateImgData[i] = 255;
       }
-      _this.setState({
+      this.setState({
         templateImgData: templateImgData
       });
-      _this.putImageDataToPreview();
+      // this.putImageDataToPreview();
+    } else {
+      templateImg.src = this.state.templateImg;
+      const _this = this;
+      templateImg.onload = function() {
+        // 将模板图片绘制到canvas中，然后获取imgCtx的data数据，更改data数据
+        ctx.drawImage(templateImg, 0, 0, templateImg.width, templateImg.height, 0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight);
+        templateImgData = ctx.getImageData(0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight).data;
+        _this.setState({
+          templateImgData: templateImgData
+        });
+        // _this.putImageDataToPreview();
+      };
+      // for (let i = 0; i < templateImgData.length; i = i + 3) {
+      //   if (templateImgData[i + 3] !== 0) {
+      //     templateImgData[i + 0] = 255;
+      //     templateImgData[i + 1] = 255;
+      //     templateImgData[i + 2] = 255;
+      //     templateImgData[i + 3] = 100;
+      //   }
+      // }
       // ctx.putImageData(templateImgInfo, 0, 0, 0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
-    };
+    }
     // return ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
   }
 
@@ -313,11 +331,12 @@ class Preview extends React.Component {
     // ctx.drawImage(previewImage, 0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight, 0, 0, this.cropResWidth, this.cropResHeight);
   }
   getTempImages(res) {
+    this.clearImage(this.cropRes);
+    this.clearImage(this.template);
     this.setState({
       templateImg: res.target.src
     });
-    this.clearImage(this.cropRes);
-    this.clearImage(this.template);
+    this.getTemplateData();
   }
 
   //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
