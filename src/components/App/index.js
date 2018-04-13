@@ -3,7 +3,7 @@ import RaiseButton from 'material-ui/RaisedButton';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Slider from 'material-ui/Slider';
 import Preview from '../Preview';
-import defaultImg from './1.jpg';
+import defaultImg from '../../images/1.jpg';
 
 import './index.scss';
 class App extends React.Component {

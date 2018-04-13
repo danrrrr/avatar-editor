@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import loadImageFile from '../../utils/loadImgFile';
 import loadImageUrl from '../../utils/loadImgUrl';
-import tempImg1 from './heart.png';
+import Templates from '../Templates';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
@@ -250,7 +250,7 @@ class Preview extends React.Component {
     const templateImg = new Image();
     // const canvas = document.createElement('canvas');
     // const imgCtx = canvas.getContext('2d');
-    templateImg.src = tempImg1;
+    templateImg.src = this.state.templateImg;
     const _this = this;
     templateImg.onload = function() {
       // 将模板图片绘制到canvas中，然后获取imgCtx的data数据，更改data数据
@@ -312,11 +312,18 @@ class Preview extends React.Component {
     };
     // ctx.drawImage(previewImage, 0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight, 0, 0, this.cropResWidth, this.cropResHeight);
   }
+  getTempImages(res) {
+    this.setState({
+      templateImg: res.target.src
+    });
+    this.clearImage(this.cropRes);
+    this.clearImage(this.template);
+  }
 
   //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
   render() {
     return (
-      <div style={{ position: 'relative', width: this.props.canvasWidth + 'px', margin: '50px auto' }}>
+      <div style={{ position: 'relative', width: this.props.canvasWidth + 'px' }}>
         <canvas ref={(canvas) => { this.canvas = canvas }}
           width={this.props.canvasWidth} height={this.props.canvasHeight}
           style={{ display: 'block' }}
@@ -329,6 +336,9 @@ class Preview extends React.Component {
           onMouseUp={(event) => this.handleMouseUp(event)}
           onMouseMove={(event) => this.handleMouseMove(event)}
         ></canvas>
+        <Templates
+          getTempImages={this.getTempImages.bind(this)}
+        />
         <canvas ref={(canvas) => { this.cropRes = canvas }}
           width={this.state.cropResWidth} height={this.state.cropResHeight}
           style={{ background: '#fff', opacity: 1 }}
