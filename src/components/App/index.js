@@ -14,6 +14,7 @@ class App extends React.Component {
       canvasWidth: 400,
       canvasHeight: 400,
       scaleValue: 1,
+      customImage: null,
     };
     this.handleNewImage = this.handleNewImage.bind(this);
     this.handleScale = this.handleScale.bind(this);
@@ -37,16 +38,25 @@ class App extends React.Component {
     // });
     this.editor.putImageDataToPreview();
   }
+  handleNewTemplate(e) {
+    this.setState({
+      customImage: e.target.files[0]
+    });
+    console.log('upload', e.target.files[0]);
+  }
   render() {
     return (
       <MuiThemeProvider>
         <div className="container">
           <Preview ref={(editor) => { this.editor = editor }}
             image={this.state.image} canvasWidth={this.state.canvasWidth} canvasHeight={this.state.canvasHeight}
-            scaleValue={this.state.scaleValue}
+            scaleValue={this.state.scaleValue} customImage={this.state.customImage}
           />
           <RaiseButton className="upload-btn" primary={true} label="choose an image">
             <input className="input-file" type="file" onChange={this.handleNewImage}></input>
+          </RaiseButton>
+          <RaiseButton className="upload-btn" primary={true} label="upload a template">
+            <input className="input-file" type="file" onChange={(e) => { this.handleNewTemplate(e) }}></input>
           </RaiseButton>
           <RaiseButton primary={true} label="crop" onClick={() => this.handleCropImage()}></RaiseButton>
           <div className="control-panel">

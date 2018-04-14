@@ -13,6 +13,20 @@ class Templates extends React.Component {
       images: [circle, star, heart],
     };
   }
+  componentDidMount() {
+
+  }
+  componentWillReceiveProps(newProps) {
+    // const images = this.state.images;
+    // if (newProps.customImage !== this.props.customImage) {
+    //   this.setState({
+    //     images: [...images, newProps.customImage]
+    //   });
+    // }
+  }
+  componentDidUpdate() {
+
+  }
   getTempImage(event) {
     this.props.getTempImages(event);
   }
@@ -37,6 +51,7 @@ class Templates extends React.Component {
 
 Templates.propTypes = {
   getTempImages: PropTypes.func,
+  customImage: PropTypes.object,
 };
 
 export default Templates;
