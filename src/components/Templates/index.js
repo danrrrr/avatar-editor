@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 // import ReactDOM from 'react-dom';
+import loadImageFile from '../../utils/loadImgFile';
+import loadImageUrl from '../../utils/loadImgUrl';
 import './index.scss';
 import circle from '../../images/circle.png';
 import star from '../../images/star.png';
@@ -12,23 +14,35 @@ class Templates extends React.Component {
     this.state = {
       images: [circle, star, heart],
     };
+    this.handleCustomImage = this.handleCustomImage.bind(this);
   }
   componentDidMount() {
 
   }
   componentWillReceiveProps(newProps) {
-    // const images = this.state.images;
-    // if (newProps.customImage !== this.props.customImage) {
-    //   this.setState({
-    //     images: [...images, newProps.customImage]
-    //   });
-    // }
+    if (newProps.customImage !== this.props.customImage) {
+      this.loadCustomImage(newProps.customImage);
+    }
   }
   componentDidUpdate() {
 
   }
   getTempImage(event) {
     this.props.getTempImages(event);
+  }
+  loadCustomImage(image) {
+    // eslint-disable-next-line
+    if (image instanceof File) {
+      loadImageFile(image).then(this.handleCustomImage);
+    } else if (typeof image === 'string') {
+      loadImageUrl(image, this.props.crossOrigin).then(this.handleCustomImage);
+    }
+  }
+  handleCustomImage(image) {
+    const images = this.state.images;
+    this.setState({
+      images: [...images, image.src]
+    });
   }
 
   render() {
@@ -51,7 +65,9 @@ class Templates extends React.Component {
 
 Templates.propTypes = {
   getTempImages: PropTypes.func,
+  getTemplateData: PropTypes.func,
   customImage: PropTypes.object,
+  crossOrigin: PropTypes.oneOf(['', 'anonymous', 'use-credentials']),
 };
 
 export default Templates;

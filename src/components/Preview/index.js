@@ -7,7 +7,7 @@ import Templates from '../Templates';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
-
+// const TEMP_COUNTS = 3;
 class Preview extends React.Component {
   constructor(props) {
     super(props);
@@ -27,7 +27,6 @@ class Preview extends React.Component {
       templateY: 0,
     };
     this.handleImage = this.handleImage.bind(this);
-    this.handleCustomImage = this.handleCustomImage.bind(this);
   }
 
   componentDidMount() {
@@ -70,9 +69,6 @@ class Preview extends React.Component {
         cropAreaHeight: this.state.initCropAreaHeight * newProps.scaleValue
       });
     }
-    if (newProps.customImage !== this.props.customImage) {
-      this.loadCustomImage(newProps.customImage);
-    }
   }
   componentDidUpdate() {
     // eslint-disable-next-line react/no-find-dom-node
@@ -86,14 +82,6 @@ class Preview extends React.Component {
     const context = canvas.getContext('2d');
     context.clearRect(0, 0, canvas.width, canvas.height);
   }
-  loadCustomImage(image) {
-    // eslint-disable-next-line
-    if (image instanceof File) {
-      loadImageFile(image).then(this.handleCustomImage);
-    } else if (typeof image === 'string') {
-      loadImageUrl(image, this.props.crossOrigin).then(this.handleCustomImage);
-    }
-  }
   loadImage(image) {
     // eslint-disable-next-line
     if (image instanceof File) {
@@ -101,14 +89,6 @@ class Preview extends React.Component {
     } else if (typeof image === 'string') {
       loadImageUrl(image, this.props.crossOrigin).then(this.handleImage);
     }
-  }
-  handleCustomImage(image) {
-    this.clearImage(this.cropRes);
-    this.clearImage(this.template);
-    this.setState({
-      customImage: image
-    });
-    this.getTemplateData();
   }
   handleImage(image) {
     const { width, height } = this.getImageSize(image);
@@ -278,7 +258,7 @@ class Preview extends React.Component {
     // eslint-disable-next-line
     const templateImg = new Image();
     let templateImgData;
-    if (!this.state.templateImg && !this.state.customImage) {
+    if (!this.state.templateImg) {
       templateImgData = ctx.getImageData(0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
       for (let i = 0; i < templateImgData.length; i++) {
         templateImgData[i] = 255;
@@ -286,21 +266,7 @@ class Preview extends React.Component {
       this.setState({
         templateImgData: templateImgData
       });
-    } else if (this.state.customImage) {
-      this.template.src = this.state.customImage.src;
-      const _this = this;
-      templateImg.onload = function() {
-        // 将模板图片绘制到canvas中，然后获取imgCtx的data数据，更改data数据
-        ctx.drawImage(templateImg, 0, 0, templateImg.width, templateImg.height, 0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight);
-        templateImgData = ctx.getImageData(0, 0, _this.state.cropAreaWidth, _this.state.cropAreaHeight).data;
-        _this.setState({
-          templateImgData: templateImgData
-        });
-        _this.setState({
-          customImage: null
-        });
-      };
-    } else if (!this.state.customImage) {
+    } else {
       templateImg.src = this.state.templateImg;
       const _this = this;
       templateImg.onload = function() {
@@ -379,6 +345,7 @@ class Preview extends React.Component {
         ></canvas>
         <Templates customImage={this.props.customImage}
           getTempImages={this.getTempImages.bind(this)}
+          getTemplateData={this.getTemplateData.bind(this)}
         />
         <canvas ref={(canvas) => { this.cropRes = canvas }}
           width={this.state.cropResWidth} height={this.state.cropResHeight}
