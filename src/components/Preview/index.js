@@ -7,7 +7,6 @@ import Templates from '../Templates';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
-// const TEMP_COUNTS = 3;
 class Preview extends React.Component {
   constructor(props) {
     super(props);
@@ -68,6 +67,10 @@ class Preview extends React.Component {
         cropAreaWidth: this.state.initCropAreaWidth * newProps.scaleValue,
         cropAreaHeight: this.state.initCropAreaHeight * newProps.scaleValue
       });
+    }
+    if (newProps.customImage !== this.props.customImage) {
+      this.clearImage(this.cropRes);
+      this.clearImage(this.template);
     }
   }
   componentDidUpdate() {

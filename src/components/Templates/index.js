@@ -8,6 +8,7 @@ import circle from '../../images/circle.png';
 import star from '../../images/star.png';
 import heart from '../../images/heart.png';
 
+const TEMP_COUNTS = 3;
 class Templates extends React.Component {
   constructor(props) {
     super(props);
@@ -40,6 +41,10 @@ class Templates extends React.Component {
   }
   handleCustomImage(image) {
     const images = this.state.images;
+    // 模板应该只有一个，新上传的模板覆盖原来的
+    if (images.length > TEMP_COUNTS) {
+      images.splice(TEMP_COUNTS, 1);
+    }
     this.setState({
       images: [...images, image.src]
     });
