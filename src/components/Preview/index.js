@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import loadImageFile from '../../utils/loadImgFile';
 import loadImageUrl from '../../utils/loadImgUrl';
-import CropBox from '../../components/CropBox';
+// import CropBox from '../CropBox';
 import Templates from '../Templates';
+// import CropRes from '../CropRes';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
@@ -285,6 +286,10 @@ class Preview extends React.Component {
     }
   }
 
+  showRes() {
+    this.cropres.putImageDataToPreview();
+  }
+
   putImageDataToPreview() {
     if (!this.state.targetImageData) {
       return;
@@ -333,6 +338,15 @@ class Preview extends React.Component {
   }
 
   //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
+
+  //   <CropBox canvasWidth={this.props.canvasWidth} canvasHeight={this.props.canvasHeight}
+  //   canvas={this.canvas}
+  // ></CropBox>
+  //   <CropRes ref={(cropres) => { this.cropres = cropres }}
+  //   targetImageData={this.state.targetImageData}
+  //   cropAreaWidth={this.state.cropAreaWidth} cropAreaHeight={this.state.cropAreaHeight}
+  //   tempImageData={this.state.tempImageData} templateImgData={this.state.templateImgData}
+  // />
   render() {
     return (
       <div style={{ position: 'relative', width: this.props.canvasWidth + 'px' }}>
@@ -341,9 +355,6 @@ class Preview extends React.Component {
           style={{ display: 'block' }}
           onWheel={(event) => this.handleMouseWheel(event)}
         ></canvas>
-        <CropBox canvasWidth={this.props.canvasWidth} canvasHeight={this.props.canvasHeight}
-          canvas={this.canvas}
-        ></CropBox>
         <canvas ref={(canvas) => { this.template = canvas }}
           width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
           style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}
