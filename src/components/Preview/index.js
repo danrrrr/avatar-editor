@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import loadImageFile from '../../utils/loadImgFile';
 import loadImageUrl from '../../utils/loadImgUrl';
+import CropBox from '../../components/CropBox';
 import Templates from '../Templates';
 
 const INIT_SIZE = 200;
@@ -149,6 +150,7 @@ class Preview extends React.Component {
   }
   handleMouseDown(e) {
     e.preventDefault();
+    console.log(this.canvas);
     const canvasObj = this.getElementClient(this.canvas);
     const obj = this.getElementClient(this.template);
     this.setState({
@@ -339,6 +341,9 @@ class Preview extends React.Component {
           style={{ display: 'block' }}
           onWheel={(event) => this.handleMouseWheel(event)}
         ></canvas>
+        <CropBox canvasWidth={this.props.canvasWidth} canvasHeight={this.props.canvasHeight}
+          canvas={this.canvas}
+        ></CropBox>
         <canvas ref={(canvas) => { this.template = canvas }}
           width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
           style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}
