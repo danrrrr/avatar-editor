@@ -6,6 +6,7 @@ import loadImageUrl from '../../utils/loadImgUrl';
 // import CropBox from '../CropBox';
 import Templates from '../Templates';
 // import CropRes from '../CropRes';
+import Filter from '../Filter';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
@@ -336,7 +337,11 @@ class Preview extends React.Component {
     });
     this.getTemplateData();
   }
-
+  getGray(res) {
+    this.setState({
+      targetImageData: res
+    });
+  }
   //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
 
   //   <CropBox canvasWidth={this.props.canvasWidth} canvasHeight={this.props.canvasHeight}
@@ -355,6 +360,8 @@ class Preview extends React.Component {
           style={{ display: 'block' }}
           onWheel={(event) => this.handleMouseWheel(event)}
         ></canvas>
+        <Filter targetImageData={this.state.targetImageData}
+          getGray={this.getGray.bind(this)}/>
         <canvas ref={(canvas) => { this.template = canvas }}
           width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
           style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}

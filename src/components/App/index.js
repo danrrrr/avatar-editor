@@ -11,7 +11,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       image: defaultImg,
-      canvasWidth: 400,
+      canvasWidth: 600,
       canvasHeight: 400,
       scaleValue: 1,
       customImage: null,
