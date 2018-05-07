@@ -6,7 +6,7 @@ import loadImageUrl from '../../utils/loadImgUrl';
 // import CropBox from '../CropBox';
 import Templates from '../Templates';
 // import CropRes from '../CropRes';
-import Filter from '../Filter';
+// import Filter from '../Filter';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
@@ -83,6 +83,27 @@ class Preview extends React.Component {
     context.clearRect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
     this.draw(context);
     this.paintImage(context, this.state.image);
+    // this.updateImage();
+  }
+  updateImage() {
+    if (!this.state.targetImageData) {
+      return;
+    }
+    this.clearImage(this.canvas);
+    // eslint-disable-next-line react/no-find-dom-node
+    const canvas = ReactDOM.findDOMNode(this.canvas);
+    const context = canvas.getContext('2d');
+    console.log(this.state.targetImageData);
+    // eslint-disable-next-line
+    const image = new Image();
+    image.src = this.state.image.resource.src;
+    console.log(image);
+    const _this = this;
+    image.onload = function() {
+      console.log('onload');
+      context.drawImage(image, image.x, image.y, _this.state.image.width, _this.state.image.height);
+      context.putImageData(_this.state.targetImageObj, 0, 0);
+    };
   }
   clearImage(canvas) {
     const context = canvas.getContext('2d');
@@ -212,28 +233,6 @@ class Preview extends React.Component {
   //     this.setState({scaleValue: 1.1});
   //   }
   // }
-  getCropArea() {
-    // const position = this.props.position || {
-    //   x: this.state.image.x,
-    //   y: this.state.image.y
-    // };
-
-    // const width = 1 / this.props.scaleValue;
-  }
-  getImage() {
-    const image = this.state.image;
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    canvas.width = this.state.cropAreaWidth;
-    canvas.height = this.state.cropAreaHeight;
-    const sx = 100 / 400 * this.state.image.resource.width;
-    const sy = 100 / 400 * this.state.image.resource.height;
-    const sw = 200 / 400 * this.state.image.resource.width;
-    const sh = 200 / 400 * this.state.image.resource.height;
-    context.drawImage(image.resource, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
-
-    return canvas;
-  }
   draw(context) {
     context.save();
     context.beginPath();
@@ -250,9 +249,14 @@ class Preview extends React.Component {
       // 获取元素的位置及size信息，位置是相对于视口的距离
       const obj = this.getElementClient(this.template);
       const canvasObj = this.getElementClient(this.canvas);
-      const imageData = context.getImageData(obj.left - canvasObj.left, obj.top - canvasObj.top, this.state.cropAreaWidth, this.state.cropAreaHeight).data;
+      const imageObj = context.getImageData(obj.left - canvasObj.left, obj.top - canvasObj.top, this.state.cropAreaWidth, this.state.cropAreaHeight);
+      // const imageObj = context.getImageData(obj.left - canvasObj.left, obj.top - canvasObj.top, this.state.image.width, this.state.image.height);
+      const imageData = imageObj.data;
       if (!this.state.targetImageData || (imageData && imageData.toString() !== this.state.targetImageData.toString())) {
-        this.setState({ targetImageData: imageData }); // 这里setstate会出发componentDidUpdate
+        this.setState({
+          targetImageData: imageData,
+          targetImageObj: imageObj
+        }); // 这里setstate会触发componentDidUpdate
       }
       context.restore();
     } else {
@@ -337,21 +341,52 @@ class Preview extends React.Component {
     });
     this.getTemplateData();
   }
-  getGray(res) {
+  setFilter(imageData) {
+    // console.log(e.currentTarget.value);
+    if (!this.state.targetImageData) {
+      return;
+    }
+    this.setGray(imageData);
+    // let targetImageData = this.state.targetImageData;
+    // let resData = this.setGray(targetImageData);
+    // this.setState({
+    //   targetImageData: resData
+    // });
+    // console.log('yeah');
+  }
+  setGray() {
+    let targetObj = this.state.targetImageObj;
+    let data = targetObj.data;
+    if (!data) {
+      return;
+    }
+    let grayScale;
+    for (let i = 0; i < data.length; i = i + 4) {
+      grayScale = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      data[i] = data[i + 1] = data[i + 2] = grayScale;
+    }
     this.setState({
-      targetImageData: res
+      targetImageObj: targetObj
     });
   }
-  //  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
+  reminiscenceFilter(imageData) {
+    let data = imageData.data;
+    for (let i = 0; i < data.length - 4; i += 4) { //  遍历各像素分量
+      let dr = 0.393 * data[i] + 0.769 * data[i + 1] + 0.189 * data[i + 2];
+      let dg = 0.349 * data[i] + 0.686 * data[i + 1] + 0.168 * data[i + 2];
+      let db = 0.272 * data[i] + 0.534 * data[i + 1] + 0.131 * data[i + 2];
 
-  //   <CropBox canvasWidth={this.props.canvasWidth} canvasHeight={this.props.canvasHeight}
-  //   canvas={this.canvas}
-  // ></CropBox>
-  //   <CropRes ref={(cropres) => { this.cropres = cropres }}
-  //   targetImageData={this.state.targetImageData}
-  //   cropAreaWidth={this.state.cropAreaWidth} cropAreaHeight={this.state.cropAreaHeight}
-  //   tempImageData={this.state.tempImageData} templateImgData={this.state.templateImgData}
-  // />
+      let scale = Math.random() * 0.5 + 0.5;
+
+      data[i] = scale * dr + (1 - scale) * data[i];
+      scale = Math.random() * 0.5 + 0.5;
+      data[i + 1] = scale * dg + (1 - scale) * data[i + 1];
+      scale = Math.random() * 0.5 + 0.5;
+      data[i + 2] = scale * db + (1 - scale) * data[i + 2];
+    }
+
+    return imageData;
+  }
   render() {
     return (
       <div style={{ position: 'relative', width: this.props.canvasWidth + 'px' }}>
@@ -360,8 +395,6 @@ class Preview extends React.Component {
           style={{ display: 'block' }}
           onWheel={(event) => this.handleMouseWheel(event)}
         ></canvas>
-        <Filter targetImageData={this.state.targetImageData}
-          getGray={this.getGray.bind(this)}/>
         <canvas ref={(canvas) => { this.template = canvas }}
           width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
           style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}
@@ -369,6 +402,10 @@ class Preview extends React.Component {
           onMouseUp={(event) => this.handleMouseUp(event)}
           onMouseMove={(event) => this.handleMouseMove(event)}
         ></canvas>
+        <div className="filter-box">
+          <button className="set-gray" value="grayFilter" onClick={() => { this.setGray() }}>setgray</button>
+          <button className="old-filter" value="reminiscenceFilter" onClick={(event) => { this.setFilter(event) }}>怀旧</button>
+        </div>
         <Templates customImage={this.props.customImage}
           getTempImages={this.getTempImages.bind(this)}
           getTemplateData={this.getTemplateData.bind(this)}
@@ -396,3 +433,21 @@ Preview.propTypes = {
 };
 
 export default Preview;
+
+// getGray(res) {
+//   this.setState({
+//     targetImageData: res
+//   });
+// }
+//  <div style={{width: this.props.canvasWidth, height: this.props.canvasHeight, position: 'absolute', left: 0, top: 0, background: '#000', opacity: '0.5'}}></div>
+
+//   <CropBox canvasWidth={this.props.canvasWidth} canvasHeight={this.props.canvasHeight}
+//   canvas={this.canvas}
+// ></CropBox>
+//   <CropRes ref={(cropres) => { this.cropres = cropres }}
+//   targetImageData={this.state.targetImageData}
+//   cropAreaWidth={this.state.cropAreaWidth} cropAreaHeight={this.state.cropAreaHeight}
+//   tempImageData={this.state.tempImageData} templateImgData={this.state.templateImgData}
+// />
+// <Filter targetImageData={this.state.targetImageData}
+//         getGray={this.getGray.bind(this)}/>
