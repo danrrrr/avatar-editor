@@ -7,6 +7,7 @@ import loadImageUrl from '../../utils/loadImgUrl';
 import Templates from '../Templates';
 // import CropRes from '../CropRes';
 // import Filter from '../Filter';
+import './index.scss';
 
 const INIT_SIZE = 200;
 const BORDER_WIDTH = 2;
@@ -27,6 +28,7 @@ class Preview extends React.Component {
       cropResHeight: INIT_SIZE,
       templateX: 0,
       templateY: 0,
+      setGray: false,
     };
     this.handleImage = this.handleImage.bind(this);
   }
@@ -237,6 +239,7 @@ class Preview extends React.Component {
     context.save();
     context.beginPath();
     context.rect(0, 0, this.props.canvasWidth, this.props.canvasHeight);
+    context.fillStyle = '#ccc';
     context.fill('evenodd');
 
     context.restore();
@@ -355,6 +358,7 @@ class Preview extends React.Component {
     // console.log('yeah');
   }
   setGray() {
+    this.setState({setGray: true});
     let targetObj = this.state.targetImageObj;
     let data = targetObj.data;
     if (!data) {
@@ -369,8 +373,12 @@ class Preview extends React.Component {
       targetImageObj: targetObj
     });
   }
-  reminiscenceFilter(imageData) {
-    let data = imageData.data;
+  reminiscenceFilter() {
+    let targetObj = this.state.targetImageObj;
+    let data = targetObj.data;
+    if (!data) {
+      return;
+    }
     for (let i = 0; i < data.length - 4; i += 4) { //  遍历各像素分量
       let dr = 0.393 * data[i] + 0.769 * data[i + 1] + 0.189 * data[i + 2];
       let dg = 0.349 * data[i] + 0.686 * data[i + 1] + 0.168 * data[i + 2];
@@ -384,36 +392,40 @@ class Preview extends React.Component {
       scale = Math.random() * 0.5 + 0.5;
       data[i + 2] = scale * db + (1 - scale) * data[i + 2];
     }
-
-    return imageData;
+    this.setState({
+      targetImageObj: targetObj
+    });
   }
   render() {
     return (
-      <div style={{ position: 'relative', width: this.props.canvasWidth + 'px' }}>
-        <canvas ref={(canvas) => { this.canvas = canvas }}
-          width={this.props.canvasWidth} height={this.props.canvasHeight}
-          style={{ display: 'block' }}
-          onWheel={(event) => this.handleMouseWheel(event)}
-        ></canvas>
-        <canvas ref={(canvas) => { this.template = canvas }}
-          width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
-          style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}
-          onMouseDown={(event) => this.handleMouseDown(event)}
-          onMouseUp={(event) => this.handleMouseUp(event)}
-          onMouseMove={(event) => this.handleMouseMove(event)}
-        ></canvas>
-        <div className="filter-box">
-          <button className="set-gray" value="grayFilter" onClick={() => { this.setGray() }}>setgray</button>
-          <button className="old-filter" value="reminiscenceFilter" onClick={(event) => { this.setFilter(event) }}>怀旧</button>
+      <div className="component-box">
+        <div className="image-panel">
+          <canvas className={'default ' + this.state.setGray ? 'set-gray' : ''} ref={(canvas) => { this.canvas = canvas }}
+            width={this.props.canvasWidth} height={this.props.canvasHeight}
+            style={{ display: 'block' }}
+            onWheel={(event) => this.handleMouseWheel(event)}
+          ></canvas>
+          <canvas ref={(canvas) => { this.template = canvas }}
+            width={this.state.cropAreaWidth} height={this.state.cropAreaHeight}
+            style={{ background: '#000', opacity: 0.3, position: 'absolute', left: this.state.templateX + 'px', top: this.state.templateY + 'px', border: BORDER_WIDTH + 'px dashed #fff' }}
+            onMouseDown={(event) => this.handleMouseDown(event)}
+            onMouseUp={(event) => this.handleMouseUp(event)}
+            onMouseMove={(event) => this.handleMouseMove(event)}
+          ></canvas>
         </div>
         <Templates customImage={this.props.customImage}
           getTempImages={this.getTempImages.bind(this)}
           getTemplateData={this.getTemplateData.bind(this)}
         />
-        <canvas ref={(canvas) => { this.cropRes = canvas }}
-          width={this.state.cropResWidth} height={this.state.cropResHeight}
-          style={{ background: '#fff', opacity: 1 }}
-        ></canvas>
+        <div className="filter-box">
+          <button className="set-gray" value="grayFilter" onClick={() => { this.setGray() }}>setgray</button>
+          <button className="old-filter" value="reminiscenceFilter" onClick={(event) => { this.setFilter(event) }}>怀旧</button>
+        </div>
+        <div className="result-preview">
+          <canvas ref={(canvas) => { this.cropRes = canvas }}
+            width={this.state.cropResWidth} height={this.state.cropResHeight}
+          ></canvas>
+        </div>
       </div>
     );
   }

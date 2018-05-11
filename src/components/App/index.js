@@ -4,7 +4,7 @@ import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Slider from 'material-ui/Slider';
 import Preview from '../Preview';
 import defaultImg from '../../images/1.jpg';
-
+import Background from '../Background';
 import './index.scss';
 class App extends React.Component {
   constructor(props) {
@@ -47,21 +47,23 @@ class App extends React.Component {
   render() {
     return (
       <MuiThemeProvider>
+        <Background />
         <div className="container">
           <Preview ref={(editor) => { this.editor = editor }}
             image={this.state.image} canvasWidth={this.state.canvasWidth} canvasHeight={this.state.canvasHeight}
             scaleValue={this.state.scaleValue} customImage={this.state.customImage}
           />
-          <RaiseButton className="upload-btn" primary={true} label="choose an image">
-            <input className="input-file" type="file" onChange={this.handleNewImage}></input>
-          </RaiseButton>
-          <RaiseButton className="upload-btn" primary={true} label="upload a template">
-            <input className="input-file" type="file" onChange={(e) => { this.handleNewTemplate(e) }}></input>
-          </RaiseButton>
-          <RaiseButton primary={true} label="crop" onClick={() => this.handleCropImage()}></RaiseButton>
           <div className="control-panel">
-            <Slider min={0.1} max={2} step={0.01} onChange={this.handleScale} value={this.state.scaleValue}/>
-            <p>{this.state.scaleValue}</p>
+            <RaiseButton className="upload-btn" primary={true} label="choose an image">
+              <input className="input-file" type="file" onChange={this.handleNewImage}></input>
+            </RaiseButton>
+            <RaiseButton className="upload-btn" primary={true} label="upload a template">
+              <input className="input-file" type="file" onChange={(e) => { this.handleNewTemplate(e) }}></input>
+            </RaiseButton>
+            <RaiseButton primary={true} label="crop" onClick={() => this.handleCropImage()}></RaiseButton>
+            <div className="scale-slider">
+              <Slider min={0.1} max={2} step={0.01} onChange={this.handleScale} value={this.state.scaleValue}/>
+            </div>
           </div>
           {!!this.state.preview && (
             <img src={this.state.preview.img}/>

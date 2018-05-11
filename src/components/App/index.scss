@@ -1,3 +1,14 @@
+.container {
+    width: 1000px;
+    height: 550px;
+    background: #fff;
+    border: 1px solid #000;
+    border-radius: 5px;
+    margin: 50px auto;
+    padding: 10px;
+    position: relative;
+}
+
 .upload-btn {
     margin: 12px;
 }
@@ -15,6 +26,13 @@
 }
 
 .control-panel {
+    width: 600px;
+    position: absolute;
+    left: 20px;
+    top: 420px;
+}
+
+.scale-slider {
     width: 400px;
     margin: 50px 0;
 }
