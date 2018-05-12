@@ -29,6 +29,7 @@ class Preview extends React.Component {
       templateX: 0,
       templateY: 0,
       setGray: false,
+      setOld: false,
     };
     this.handleImage = this.handleImage.bind(this);
   }
@@ -263,7 +264,7 @@ class Preview extends React.Component {
       }
       context.restore();
     } else {
-      console.error('cant find image.resource');
+      // console.error('cant find image.resource');
     }
   }
   getTemplateData() {
@@ -302,6 +303,7 @@ class Preview extends React.Component {
     if (!this.state.targetImageData) {
       return;
     }
+    this.clearImage(this.cropRes);
     const canvas = document.createElement('canvas');
     canvas.width = this.state.cropAreaWidth;
     canvas.height = this.state.cropAreaHeight;
@@ -326,7 +328,10 @@ class Preview extends React.Component {
         previewData[i + 3] = 0;
       }
     }
-    ctx.putImageData(previewImage, 0, 0, 0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
+    this.setState({
+      previewImageData: previewImage
+    });
+    ctx.putImageData(this.state.previewImageData, 0, 0, 0, 0, this.state.cropAreaWidth, this.state.cropAreaHeight);
     // eslint-disable-next-line
     const cropImage = new Image();
     const _this = this;
@@ -358,8 +363,12 @@ class Preview extends React.Component {
     // console.log('yeah');
   }
   setGray() {
-    this.setState({setGray: true});
-    let targetObj = this.state.targetImageObj;
+    // this.setState({
+    //   setGray: true,
+    //   setOld: false
+    // });
+    this.clearImage(this.cropRes);
+    let targetObj = this.state.previewImageData;
     let data = targetObj.data;
     if (!data) {
       return;
@@ -370,11 +379,19 @@ class Preview extends React.Component {
       data[i] = data[i + 1] = data[i + 2] = grayScale;
     }
     this.setState({
-      targetImageObj: targetObj
+      previewImageData: targetObj
+    });
+    this.putImageDataToPreview();
+  }
+  setOldFilter() {
+    this.setState({
+      setGray: false,
+      setOld: true
     });
   }
   reminiscenceFilter() {
-    let targetObj = this.state.targetImageObj;
+    this.clearImage(this.cropRes);
+    let targetObj = this.state.previewImageData;
     let data = targetObj.data;
     if (!data) {
       return;
@@ -393,14 +410,15 @@ class Preview extends React.Component {
       data[i + 2] = scale * db + (1 - scale) * data[i + 2];
     }
     this.setState({
-      targetImageObj: targetObj
+      previewImageData: targetObj
     });
+    this.putImageDataToPreview();
   }
   render() {
     return (
       <div className="component-box">
         <div className="image-panel">
-          <canvas className={'default ' + this.state.setGray ? 'set-gray' : ''} ref={(canvas) => { this.canvas = canvas }}
+          <canvas className={'default ' + this.state.setGray ? 'set-gray ' : '' + this.state.setOld ? 'set-old' : ''} ref={(canvas) => { this.canvas = canvas }}
             width={this.props.canvasWidth} height={this.props.canvasHeight}
             style={{ display: 'block' }}
             onWheel={(event) => this.handleMouseWheel(event)}
@@ -419,7 +437,7 @@ class Preview extends React.Component {
         />
         <div className="filter-box">
           <button className="set-gray" value="grayFilter" onClick={() => { this.setGray() }}>setgray</button>
-          <button className="old-filter" value="reminiscenceFilter" onClick={(event) => { this.setFilter(event) }}>怀旧</button>
+          <button className="old-filter" value="reminiscenceFilter" onClick={() => { this.reminiscenceFilter() }}>怀旧</button>
         </div>
         <div className="result-preview">
           <canvas ref={(canvas) => { this.cropRes = canvas }}
