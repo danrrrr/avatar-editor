@@ -7,13 +7,14 @@ import './index.scss';
 import circle from '../../images/circle.png';
 import star from '../../images/star.png';
 import heart from '../../images/heart.png';
+import ring from '../../images/ring.png';
 
-const TEMP_COUNTS = 3;
+const TEMP_COUNTS = 4;
 class Templates extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      images: [circle, star, heart],
+      images: [circle, star, heart, ring],
     };
     this.handleCustomImage = this.handleCustomImage.bind(this);
   }

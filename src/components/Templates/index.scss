@@ -3,7 +3,7 @@
   float: left;
   margin-left: 20px;
   padding: 10px;
-  background: #ccc;
+  background: linear-gradient(45deg, rgba(194, 233, 221, 0.5) 1%, rgba(104, 119, 132, 0.5) 100%), linear-gradient(-45deg, #494d71 0%, rgba(217, 230, 185, 0.5) 80%);
   border-radius: 5px;
 
   .images {
@@ -13,8 +13,8 @@
     justify-content: space-around;
 
     .temp-item {
-      width: 80px;
-      height: 80px;
+      width: 60px;
+      height: 60px;
     }
   }
 }
